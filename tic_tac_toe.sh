@@ -1,8 +1,9 @@
 #!/bin/bash
 # Author: LMI
 # Date: 13/0CT/2021
-# Version 1.4
-#    
+# Version 1.5
+#   history: 1.5 removed computer thinking display.
+#
 # variables globales.
 turn=0
 
@@ -14,7 +15,7 @@ do
 done
 
 #affiche tableau
-affiche_tableau(){
+affiche_tableau( ){
   #echo ${!tableau[@]}
   echo "   ___ ___ ___"
   echo "  |   |   |   |"
@@ -54,13 +55,14 @@ ordijoue(){
   valid=0
   while [ $valid == 0 ]
   do
+    # LEVEL 0
+    # ordi choisi au hazard parmi 9 choix
     dest=$((1 + $RANDOM % 9))
-    echo choix ordi:$dest
     # test si vide ?
-    #test_coup_valide ${tableau[$dest]}
-    test_coup_valide $dest
+    test_coup_valide $dest ordi
   done
   tableau[$dest]="O"
+  echo ordi joue : $dest
 
   # LEVEL 1
   # si non contrer le jeu en fonction des 8 solutions
@@ -80,7 +82,9 @@ test_coup_valide(){
   if [ ${tableau[$1]} = "-" ];then
     valid=1
   else
-    echo "Choix impossible"
+    if [ $2 = "joueur" ];then
+      echo "Choix impossible"
+    fi
   fi
   return $valid
 }
@@ -91,7 +95,7 @@ choisir_case(){
   do
     read -r -p "Quelle case ? " case
     # test si vide ?
-    test_coup_valide $case
+    test_coup_valide $case joueur
   done
   return $case
 }
@@ -146,16 +150,12 @@ do
   turn=$i
   #echo tour de jeu: $turn
   if [ $J -eq 0 ];then
-    echo ordi joue...
     J=1
     ordijoue
   else
-    echo joueur joue...
     J=0
     joueurjoue
   fi
   testgagne
 done
 affiche_tableau
-
-
