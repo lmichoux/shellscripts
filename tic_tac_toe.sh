@@ -1,9 +1,11 @@
 #!/bin/bash
 # Author: LMI
 # Date: 13/0CT/2021
-# Version 1.5
+# Version 1.6
 #   history: 1.5 removed computer thinking display.
-#
+#            1.6 LEVEL 1 done.
+# Todo: Level2...
+
 # variables globales.
 turn=0
 
@@ -40,7 +42,7 @@ ordijoue(){
   # 123
   # 456
   # 789
-  # niv. intelligence à définir. (4 niveaux)
+  # todo: intelligence à définir. (4 niveaux)
   # premier à jouer ?
   # si oui
   if [ $turn -eq 1 ];then
@@ -51,20 +53,41 @@ ordijoue(){
     #   3) 2468
     #   4) 1234456789
   fi
-  # LEVEL 0 (niveau cérébral nul)
-  valid=0
-  while [ $valid == 0 ]
-  do
-    # LEVEL 0
-    # ordi choisi au hazard parmi 9 choix
-    dest=$((1 + $RANDOM % 9))
-    # test si vide ?
-    test_coup_valide $dest ordi
-  done
+  case $LEVEL in 
+    0)
+      # LEVEL 0
+      # ordi choisi au hazard parmi 9 choix
+      valid=0
+      while [ $valid == 0 ]
+      do
+        dest=$((1 + $RANDOM % 9))
+        # test si vide ?
+        test_coup_valide $dest ordi
+      done
+    ;;
+    1)
+      # LEVEL 1
+      # choix dans l'ordre: le centre, les coins, les bords
+      # soit 5,1,3,7,9,2,4,6,8
+      valid=0
+      while [ $valid == 0 ]
+      do
+        bestplay=5,1,3,7,9,2,4,6,8
+        for i in ${bestplay//,/ }
+        do
+          dest=$i
+          test_coup_valide $dest ordi
+          if [ $valid -eq 1 ];then
+	    break
+          fi
+	done
+      done
+    ;;
+  esac
   tableau[$dest]="O"
   echo ordi joue : $dest
 
-  # LEVEL 1
+  # TODO: LEVEL 2
   # si non contrer le jeu en fonction des 8 solutions
   # odds: + + - - - - _ _
   #       1 7 1 1 7 3 4 2
@@ -133,6 +156,28 @@ testgagne(){
 }
 
 #########################
+# MAIN
+#########################
+
+# choix du niveau de l'ordinateur
+LEVEL=0
+valid=0
+while [ $valid == 0 ]
+  do
+  read -r -p "Niveau de difficulté (0,1,2) ? " LEVEL
+    case $LEVEL in
+	    0) echo "LEVEL $LEVEL (Facile)"
+            valid=1
+            ;;
+            1) echo "LEVEL $LEVEL (moins facile)"
+            valid=1
+            ;;
+	    *) echo "NOT READY YET"
+            sleep 1
+            ;;
+    esac
+  done
+
 # random qui commence
 JOUEUR=$((1 + $RANDOM % 2))
 case $JOUEUR in
@@ -144,7 +189,7 @@ case $JOUEUR in
 ;;
 esac
 
-### main
+### c'est parti pour 9 tours de jeu
 for i in {1..9}
 do
   turn=$i
